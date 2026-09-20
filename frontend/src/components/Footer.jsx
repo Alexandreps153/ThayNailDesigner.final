@@ -1,4 +1,5 @@
 import { Instagram, MessageCircle, Lock } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { WHATSAPP_NUMBER } from '@/lib/api';
 
 export default function Footer() {
@@ -43,13 +44,13 @@ export default function Footer() {
           <p className="font-body text-xs text-off-white/50 font-light">
             © {new Date().getFullYear()} Thay Nail Designer. Todos os direitos reservados.
           </p>
-          <a
-            href="/admin"
+          <Link
+            to="/admin"
             data-testid="footer-admin-link"
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-rose-gold bg-rose-gold px-5 py-2 font-body text-xs font-medium tracking-widest uppercase text-white transition-opacity duration-300 hover:opacity-90"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-rose-gold bg-rose-gold px-6 py-3 font-body text-sm font-medium tracking-widest uppercase text-white transition-opacity duration-300 hover:opacity-90"
           >
-            <Lock size={14} /> Área Administrativa
-          </a>
+            <Lock size={16} /> Área Administrativa
+          </Link>
         </div>
       </div>
     </footer>
