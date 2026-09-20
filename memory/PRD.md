@@ -6,14 +6,15 @@ Portar e melhorar o site da nail designer "Thay Nail Designer" (enviado em zip, 
 ## Arquitetura
 - **Frontend**: React (CRA/craco) em /app/frontend, rotas `/` (pública) e `/admin` (JWT sessionStorage). Tailwind v3 com tokens do design original (rose-gold #B76E79, cream, off-white, deep-warm; fontes Cormorant Garamond + Jost).
 - **Backend**: FastAPI em /app/backend/server.py, rotas /api/*, MongoDB via motor. Auth: POST /api/auth/login (senha via ADMIN_PASSWORD no .env) → JWT 12h; dependency require_admin protege escritas.
-- **Animação Home**: canvas fixo (Hero.jsx) com 30 frames (/public/frames/frame-0001..0030.jpg), índice do frame = scrollY/(1.4×viewport) × 29, desenho cover-fit com rAF throttle; respeita prefers-reduced-motion.
+- **Vídeo Home**: <video autoplay muted loop playsinline> fixo em `-z-10` (Hero.jsx), arquivo /public/videos/home-animation.mp4 (~380KB, 2s) gerado dos 30 frames; texto THAY NAIL DESIGNER sobreposto. Wrapper da Home com `relative z-10` garante que rodapé/seções fiquem acima do vídeo.
 
 ## Personas
 - Cliente: visita o site, vê serviços, agenda horário em dias/horários disponíveis, confirma pelo WhatsApp.
 - Admin (Thay, vitorialopesgoncalves4@gmail.com): gerencia serviços, agenda semanal e bloqueios em /admin (senha 1611).
 
 ## Requisitos implementados (2026-09-20)
-- Home portada: Hero com animação scroll-driven + texto THAY NAIL DESIGNER, Sobre, Serviços (MongoDB), Agendamento (calendário respeitando work_days/bloqueios/agendamentos), Contato com horários dinâmicos, Footer.
+- Home portada: Hero com vídeo em loop automático + texto THAY NAIL DESIGNER, Sobre, Serviços (MongoDB), Agendamento (calendário respeitando work_days/bloqueios/agendamentos), Contato com horários dinâmicos, Footer com botão "Área Administrativa" (/admin).
+- Correção de bug (2026-09-20): vídeo fixo estava com z-0 e cobria o rodapé (botão Admin invisível/não clicável) → alterado para -z-10; link do rodapé migrado para react-router Link. Verificado pelo testing agent (iteration_2) em desktop e mobile.
 - Admin: login JWT por senha, Painel (stats + próximos atendimentos + resumo dias), Agenda (toggle disponível/fechado por dia, horários, bloqueio de data/horário/dia todo), Serviços (criar/editar/excluir/reordenar, upload de foto redimensionada para base64, campo duração).
 - Backend: CRUD services, work-days, blocked-slots, appointments (409 em conflito de horário), seeds idempotentes por coleção vazia.
 - Testes: 18/18 backend pytest + E2E Playwright 100% (iteration_1).

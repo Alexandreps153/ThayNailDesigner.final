@@ -1,0 +1,25 @@
+{
+  "summary": "Focused re-test of the two reported bugs on Thay Nail Designer. BOTH BUG FIXES CONFIRMED. (1) Hero video: <video data-testid='hero-animation-video'> is present with autoplay=true, muted=true, loop=true, playsInline; readyState=4, duration=2s. currentTime advanced 1.09s -> 0.51s -> 0.93s over ~4s, confirming autoplay AND loop wrap (no scroll interaction required). Hero title 'THAY NAIL DESIGNER' visible over video. (2) Footer admin link: After scrolling to bottom, document.elementFromPoint at the center of the Área Administrativa button returns the <a data-testid='footer-admin-link'> itself (not the video), meaning nothing is intercepting the click. Clicking navigates to /admin, admin login page renders (data-testid=admin-login-password-input), and password '1611' logs into admin panel (data-testid=admin-panel). Section opacity regression: #sobre, #servicos, #agendamento, #contato all have opaque solid backgrounds (rgb(250,247,242) / rgb(243,237,228)); video does not bleed through. Mobile (390x844): video covers viewport (390x844), title visible, footer admin link is the top element at its point and clicking it navigates to /admin.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Booking service <select>", "issues": ["Pre-existing hydration warning: <span> cannot be child of <option>. Caused by dev-time instrumentation (x-file-name / x-excluded attrs). Cosmetic; unchanged from iteration_1."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Hero.jsx uses two `fixed inset-0 -z-10` elements (video + overlay). Because they are position:fixed with negative z-index, they sit behind the `relative z-10` root wrapper in HomePage.jsx – this correctly prevents pointer interception. Consider moving the fixed video into a dedicated background component outside <main> to make the layering intent explicit.",
+    "Video file /videos/home-animation.mp4 loads with duration=2s, readyState=4 (HAVE_ENOUGH_DATA). Good; but consider adding a poster image so the first frame is visible while the mp4 is buffering on slow connections."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (not retested)", "frontend": "100%"},
+  "test_credentials": "Admin password: 1611 (confirmed working)",
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Both reported bugs are fixed and verified on desktop (1920x1080) and mobile (390x844). Hero uses <video autoplay muted loop playsInline> at fixed -z-10; HomePage root has relative z-10 which correctly keeps the footer <a> on top and clickable. Backend was fully validated in iteration_1 (18/18 pytest) and was intentionally not re-tested per request. Only outstanding minor is the pre-existing hydration warning for <span> in <option> caused by dev-time instrumentation attributes.",
+  "rca_of_the_issue": "Previous broken state: the hero video had z-0 (or positive z-index), so despite the footer being lower in the DOM, the position:fixed video covered the viewport including the footer area and intercepted pointer events on the admin link. Fix: setting the video to `fixed inset-0 -z-10` plus wrapping HomePage content in `relative z-10` establishes a new stacking context above the video, so the footer <a data-testid=footer-admin-link> becomes the top element at its position and the click navigates to /admin correctly."
+}
