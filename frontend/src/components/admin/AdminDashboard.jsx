@@ -1,8 +1,16 @@
-import { CalendarDays, Clock, CheckCircle, XCircle, TrendingUp } from 'lucide-react';
-import { DAY_NAMES, formatDateBR } from '@/lib/api';
+import { CalendarDays, Clock, CheckCircle, XCircle, TrendingUp, Ban } from 'lucide-react';
+import { api, DAY_NAMES, formatDateBR } from '@/lib/api';
 
 export default function AdminDashboard({ data }) {
-  const { appointments, workDays, blockedSlots } = data;
+  const { appointments, workDays, blockedSlots, reload } = data;
+
+  const cancelAppointment = async (apt) => {
+    if (!window.confirm(`Cancelar o atendimento de ${apt.name} em ${formatDateBR(apt.date)} às ${apt.time}?`)) return;
+    try {
+      await api.updateAppointmentStatus(apt.id, 'cancelled');
+      await reload();
+    } catch {}
+  };
 
   const today = new Date().toISOString().split('T')[0] ?? '';
   const upcoming = appointments
@@ -56,14 +64,25 @@ export default function AdminDashboard({ data }) {
           ) : (
             <div className="space-y-3 max-h-80 overflow-y-auto scrollbar-hide">
               {upcoming.map((apt) => (
-                <div key={apt.id} className="flex items-center justify-between border-b border-rose-gold/10 pb-3">
+                <div key={apt.id} data-testid={`admin-appointment-${apt.id}`} className="flex items-center justify-between gap-3 border-b border-rose-gold/10 pb-3">
                   <div>
                     <p className="font-body text-sm text-deep-warm font-medium">{apt.name}</p>
                     <p className="font-body text-xs text-warm-gray">{apt.service}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="font-body text-xs text-deep-warm">{formatDateBR(apt.date)}</p>
-                    <p className="font-body text-xs text-rose-gold">{apt.time}</p>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <p className="font-body text-xs text-deep-warm">{formatDateBR(apt.date)}</p>
+                      <p className="font-body text-xs text-rose-gold">{apt.time}</p>
+                    </div>
+                    <button
+                      onClick={() => cancelAppointment(apt)}
+                      data-testid={`admin-appointment-cancel-${apt.id}`}
+                      title="Cancelar atendimento"
+                      aria-label="Cancelar atendimento"
+                      className="p-2 rounded-lg text-red-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                    >
+                      <Ban size={16} />
+                    </button>
                   </div>
                 </div>
               ))}

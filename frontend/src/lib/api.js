@@ -50,6 +50,7 @@ export const api = {
   getBookedSlots: () => request('/appointments/booked'),
   getAppointments: () => request('/appointments', { auth: true }),
   createAppointment: (data) => request('/appointments', { method: 'POST', body: data }),
+  updateAppointmentStatus: (id, status) => request(`/appointments/${id}/status`, { method: 'PATCH', body: { status }, auth: true }),
 };
 
 export const WHATSAPP_NUMBER = '11958566979';

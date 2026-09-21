@@ -78,6 +78,9 @@ class AppointmentIn(BaseModel):
     date: str
     time: str
 
+class AppointmentStatusIn(BaseModel):
+    status: str
+
 
 # ---------- Auth ----------
 
@@ -196,6 +199,16 @@ async def create_appointment(body: AppointmentIn):
     await db.appointments.insert_one(doc)
     doc.pop("_id", None)
     return doc
+
+
+@api_router.patch("/appointments/{appointment_id}/status")
+async def update_appointment_status(appointment_id: str, body: AppointmentStatusIn, admin=Depends(require_admin)):
+    if body.status not in ("pending", "confirmed", "cancelled"):
+        raise HTTPException(status_code=400, detail="Status inválido")
+    result = await db.appointments.update_one({"id": appointment_id}, {"$set": {"status": body.status}})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Agendamento não encontrado")
+    return await db.appointments.find_one({"id": appointment_id}, {"_id": 0})
 
 
 # ---------- Seed ----------
