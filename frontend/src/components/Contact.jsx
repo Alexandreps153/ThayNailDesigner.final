@@ -1,24 +1,12 @@
-import { useEffect, useState } from 'react';
-import { Instagram, MessageCircle, Clock } from 'lucide-react';
-import { api, WHATSAPP_NUMBER, DAY_NAMES } from '@/lib/api';
-import { useScrollReveal, useRefetchOnFocus } from '@/hooks/useReveal';
-import { useCallback } from 'react';
+import { Instagram, MessageCircle } from 'lucide-react';
+import { WHATSAPP_NUMBER } from '@/lib/api';
+import { useScrollReveal } from '@/hooks/useReveal';
 import { DecorativeDivider, DecorativeLeaf } from '@/components/Decorations';
+
+const INSTAGRAM_URL = 'https://www.instagram.com/by_thay.designer?utm_source=ig_web_button_share_sheet&stkn=ZDNlZDc0MzIxNw==';
 
 export default function Contact() {
   const { ref, visible } = useScrollReveal();
-  const [workDays, setWorkDays] = useState([]);
-
-  const load = useCallback(async () => {
-    try {
-      setWorkDays(await api.getWorkDays());
-    } catch {}
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
-  useRefetchOnFocus(load);
-
-  const activeDays = workDays.filter((wd) => wd.active);
 
   return (
     <section id="contato" data-testid="contact-section" className="relative py-24 md:py-32 overflow-hidden bg-off-white">
@@ -33,7 +21,7 @@ export default function Contact() {
           <DecorativeDivider />
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
           <a
             href={`https://wa.me/55${WHATSAPP_NUMBER}`}
             target="_blank"
@@ -51,7 +39,9 @@ export default function Contact() {
           </a>
 
           <a
-            href="#"
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             data-testid="contact-instagram-link"
             className="group bg-cream rounded-2xl p-8 text-center card-shadow card-shadow-hover transition-all duration-500 hover:-translate-y-1"
           >
@@ -60,27 +50,9 @@ export default function Contact() {
             </div>
             <h3 className="font-serif-display text-xl text-deep-warm font-medium mb-2">Instagram</h3>
             <p className="font-body text-sm text-warm-gray font-light">
-              @thaymaildesigner
+              @by_thay.designer
             </p>
           </a>
-
-          <div className="bg-cream rounded-2xl p-8 text-center card-shadow">
-            <div className="w-14 h-14 rounded-full bg-rose-pale flex items-center justify-center mx-auto mb-4">
-              <Clock size={24} className="text-rose-gold" />
-            </div>
-            <h3 className="font-serif-display text-xl text-deep-warm font-medium mb-2">Horários</h3>
-            <div data-testid="contact-hours" className="font-body text-sm text-warm-gray font-light space-y-1">
-              {activeDays.length === 0 ? (
-                <p>Consulte disponibilidade pelo WhatsApp</p>
-              ) : (
-                activeDays.map((wd) => (
-                  <p key={wd.day}>
-                    {DAY_NAMES[wd.day]}: {wd.opening_time} — {wd.closing_time}
-                  </p>
-                ))
-              )}
-            </div>
-          </div>
         </div>
       </div>
     </section>

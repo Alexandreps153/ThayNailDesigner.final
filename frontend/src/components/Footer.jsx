@@ -31,7 +31,9 @@ export default function Footer() {
               <MessageCircle size={18} className="text-off-white" />
             </a>
             <a
-              href="#"
+              href="https://www.instagram.com/by_thay.designer?utm_source=ig_web_button_share_sheet&stkn=ZDNlZDc0MzIxNw=="
+              target="_blank"
+              rel="noopener noreferrer"
               data-testid="footer-instagram-link"
               className="w-10 h-10 rounded-full bg-off-white/10 flex items-center justify-center hover:bg-rose-gold transition-colors duration-300"
             >
@@ -41,8 +43,9 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 pt-6 border-t border-off-white/10 flex flex-col md:flex-row items-center justify-between gap-3">
-          <p className="font-body text-xs text-off-white/50 font-light">
+          <p className="font-body text-xs text-off-white/50 font-light text-center md:text-left">
             © {new Date().getFullYear()} Thay Nail Designer. Todos os direitos reservados.
+            <span className="block mt-1" data-testid="footer-credit">Desenvolvido por <span className="text-rose-light">Lopes Designer</span></span>
           </p>
           <Link
             to="/admin"
