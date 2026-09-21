@@ -1,0 +1,28 @@
+{
+  "summary": "Tested new cancel-appointment feature end-to-end. Backend PATCH /api/appointments/{id}/status validated for 401 (no token), 400 (invalid status), 404 (unknown id), 200 + slot release on cancel. Full UI E2E: booked a public appointment (TESTE_CANCEL_UI, 2027-12-01 14:00), logged into /admin (senha 1611), Painel showed row with cancel button, clicked it (window.confirm auto-accepted), row disappeared, Cancelados counter went 3→4, and the slot became available again on the public booking page.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Home (todos)", "issues": ["Console warning React de hidratação: <span> como filho direto de <option> em Booking.jsx (linhas 270-274). Não bloqueia o fluxo mas gera hydration error no console. Sugestão: mover o texto de preço para dentro de uma string única no <option> em vez de usar <span>."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/backend_test.py", "/app/test_reports/pytest/cancel_status.xml"],
+  "action_items": [
+    "Nenhum bug funcional na feature de cancelamento. Opcional: corrigir warning de hidratação removendo <span> dentro de <option> no Booking.jsx.",
+    "Atenção: os dias de trabalho estavam TODOS marcados como active=False no banco (provavelmente resíduo de testes anteriores). Reativei domingo/quarta/sexta/sábado com os horários default via API para conseguir criar agendamento pela UI. O seed só popula work_days quando a coleção está vazia — considerar um endpoint/mecanismo para restaurar defaults ou tornar o seed idempotente."
+  ],
+  "critical_code_review_comments": [
+    "Booking.jsx: <option> contém <span> (React hydration warning). Trocar por template string simples.",
+    "AdminDashboard.jsx cancelAppointment: catch silencioso (`catch {}`) — se a PATCH falhar o usuário não recebe feedback. Ideal exibir toast/alert em erro.",
+    "server.py: seed_data só semeia work_days quando coleção vazia; se alguém desativa tudo, não há caminho fácil de resetar. Considerar comando admin de reset ou verificar consistência ao iniciar."
+  ],
+  "updated_files": ["/app/backend/tests/backend_test.py"],
+  "success_rate": {"backend": "100% (4/4 novos + 18/18 anteriores)", "frontend": "100% E2E cancelamento"},
+  "test_credentials": "Admin senha: 1611",
+  "seed_data_creation": "Recriei workDays default via API (dom/qua/sex/sáb ativos) porque estavam todos inativos no banco. Criei e cancelei o agendamento TESTE_CANCEL_UI (2027-12-01 14:00) — ficou como cancelled no banco.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Feature de cancelamento 100% funcional. workDays foram restaurados durante teste. Agendamentos de teste TESTE_* estão cancelados no banco. Existe warning React de hidratação (<span> em <option>) que não bloqueia mas polui o console."
+}

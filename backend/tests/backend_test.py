@@ -164,3 +164,65 @@ class TestAppointments:
         r = requests.get(f"{API}/appointments", headers=auth_headers, timeout=15)
         assert r.status_code == 200
         assert isinstance(r.json(), list)
+
+
+# ---------- Appointment status (cancel) ----------
+class TestAppointmentStatus:
+    def test_patch_unauth(self):
+        r = requests.patch(f"{API}/appointments/nonexistent-id/status", json={"status": "cancelled"}, timeout=15)
+        assert r.status_code == 401
+
+    def test_patch_invalid_status(self, auth_headers):
+        # create a fresh appointment
+        appt = {"name": "TEST_CANCEL_API", "phone": "11911112222", "service": "Unhas de Gel",
+                "date": "2036-01-05", "time": "11:00"}
+        r = requests.post(f"{API}/appointments", json=appt, timeout=15)
+        assert r.status_code in (201, 409)
+        if r.status_code == 201:
+            aid = r.json()["id"]
+        else:
+            # find it
+            listed = requests.get(f"{API}/appointments", headers=auth_headers, timeout=15).json()
+            aid = next(a["id"] for a in listed if a["date"] == "2036-01-05" and a["time"] == "11:00")
+        r = requests.patch(f"{API}/appointments/{aid}/status", json={"status": "bogus"},
+                           headers=auth_headers, timeout=15)
+        assert r.status_code == 400
+
+    def test_patch_not_found(self, auth_headers):
+        r = requests.patch(f"{API}/appointments/does-not-exist-xyz/status",
+                           json={"status": "cancelled"}, headers=auth_headers, timeout=15)
+        assert r.status_code == 404
+
+    def test_cancel_frees_slot(self, auth_headers):
+        appt = {"name": "TEST_CANCEL_FLOW", "phone": "11933334444", "service": "Unhas de Gel",
+                "date": "2036-02-14", "time": "15:00"}
+        # ensure clean state: try create
+        r = requests.post(f"{API}/appointments", json=appt, timeout=15)
+        assert r.status_code in (201, 409)
+
+        # get id
+        listed = requests.get(f"{API}/appointments", headers=auth_headers, timeout=15).json()
+        target = next(a for a in listed if a["date"] == appt["date"] and a["time"] == appt["time"])
+        aid = target["id"]
+
+        # slot should be in booked
+        booked = requests.get(f"{API}/appointments/booked", timeout=15).json()
+        assert any(b["date"] == appt["date"] and b["time"] == appt["time"] for b in booked)
+
+        # cancel
+        r = requests.patch(f"{API}/appointments/{aid}/status",
+                           json={"status": "cancelled"}, headers=auth_headers, timeout=15)
+        assert r.status_code == 200
+        assert r.json()["status"] == "cancelled"
+
+        # slot should be released
+        booked = requests.get(f"{API}/appointments/booked", timeout=15).json()
+        assert not any(b["date"] == appt["date"] and b["time"] == appt["time"] for b in booked)
+
+        # now creating again should succeed (slot freed)
+        r = requests.post(f"{API}/appointments", json=appt, timeout=15)
+        assert r.status_code == 201
+        new_id = r.json()["id"]
+        # cleanup: cancel the new one to not leave pending test data
+        requests.patch(f"{API}/appointments/{new_id}/status",
+                       json={"status": "cancelled"}, headers=auth_headers, timeout=15)

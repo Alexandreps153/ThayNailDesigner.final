@@ -14,6 +14,7 @@ Portar e melhorar o site da nail designer "Thay Nail Designer" (enviado em zip, 
 
 ## Requisitos implementados (2026-09-20)
 - Home portada: Hero com vídeo em loop automático + texto THAY NAIL DESIGNER, Sobre, Serviços (MongoDB), Agendamento (calendário respeitando work_days/bloqueios/agendamentos), Contato com horários dinâmicos, Footer com botão "Área Administrativa" (/admin).
+- Cancelamento de atendimentos (2026-09-21): PATCH /api/appointments/{id}/status (protegido, status pending/confirmed/cancelled) + botão cancelar por agendamento no Painel (Próximos Atendimentos) com confirmação; cancelar libera o horário na área pública e atualiza o contador. Verificado pelo testing agent (iteration_3).
 - Ajustes (2026-09-21): seção Contato sem o card "Horários" (apenas WhatsApp + Instagram); Instagram apontando para https://www.instagram.com/by_thay.designer (@by_thay.designer) no Contato e no rodapé; rodapé com crédito "Desenvolvido por Lopes Designer".
 - Correção de bug (2026-09-20): vídeo fixo estava com z-0 e cobria o rodapé (botão Admin invisível/não clicável) → alterado para -z-10; link do rodapé migrado para react-router Link. Verificado pelo testing agent (iteration_2) em desktop e mobile.
 - Admin: login JWT por senha, Painel (stats + próximos atendimentos + resumo dias), Agenda (toggle disponível/fechado por dia, horários, bloqueio de data/horário/dia todo), Serviços (criar/editar/excluir/reordenar, upload de foto redimensionada para base64, campo duração).
@@ -22,7 +23,7 @@ Portar e melhorar o site da nail designer "Thay Nail Designer" (enviado em zip, 
 
 ## Backlog priorizado
 - P1: slots do agendamento considerando duration_minutes do serviço (último horário não deve estourar o fechamento).
-- P1: admin confirmar/cancelar agendamentos (mudar status) pelo Painel.
+- P1: admin confirmar agendamentos (mudar status para confirmed) pelo Painel — endpoint já existe, falta o botão.
 - P2: migrar @app.on_event para lifespan handlers (FastAPI).
 - P2: validação backend de price/duration >= 0 em POST/PUT /api/services.
 - P2: galeria de fotos gerenciável (modelo GalleryItem existia no projeto original, não portado).
